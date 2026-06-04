@@ -1,9 +1,13 @@
 // Глобальные переменные состояния
 let examData = [];
 let testQuestions = [];
-let userAnswers = {}; // { 'q-1': ['ответ1', 'ответ2'] }
+let userAnswers = {}; 
 let currentIndex = 0;
-let currentMode = 'learn'; // learn, test-single, test-list
+let currentMode = 'learn';
+
+// Таймер
+let timerInterval;
+let secondsElapsed = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
@@ -14,22 +18,27 @@ function init() {
     const loader = document.getElementById('loader');
     const errorEl = document.getElementById('error');
 
+    // Проверяем тему в localStorage
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('#theme-toggle i').className = 'ri-sun-line';
+    }
+
     fetch('теория-вероятностей.json')
         .then(response => {
             if (!response.ok) throw new Error('Не удалось загрузить файл данных.');
             return response.json();
         })
         .then(data => {
+            // Перемешиваем варианты ответов один раз при загрузке
             examData = data.map((item, index) => ({
                 ...item,
-                id: `q-${index}`
+                id: `q-${index}`,
+                choices: shuffleArray([...item.choices])
             }));
+            
             loader.classList.add('hidden');
-            
-            // Настройка поиска для режима шпаргалки
             document.getElementById('searchInput').addEventListener('input', handleSearch);
-            
-            // Запускаем режим по умолчанию
             switchTab('learn');
         })
         .catch(err => {
@@ -39,11 +48,30 @@ function init() {
         });
 }
 
+// Управление темой
+window.toggleTheme = function() {
+    const root = document.documentElement;
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    
+    if (isDark) {
+        root.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+        document.querySelector('#theme-toggle i').className = 'ri-moon-line';
+    } else {
+        root.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        document.querySelector('#theme-toggle i').className = 'ri-sun-line';
+    }
+};
+
 // Управление вкладками и экранами
 window.switchTab = function(tabName) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     const activeTab = document.getElementById(`tab-${tabName}`);
     if (activeTab) activeTab.classList.add('active');
+
+    stopTimer();
+    document.getElementById('timer-badge').classList.add('hidden');
 
     if (tabName === 'learn') {
         currentMode = 'learn';
@@ -59,7 +87,7 @@ window.switchTab = function(tabName) {
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
     document.getElementById(viewId).classList.remove('hidden');
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ================= ШПАРГАЛКА (Обучение) =================
@@ -91,7 +119,6 @@ function renderLearnList(items) {
     }
 }
 
-// Аккордеон для шпаргалки
 window.toggleAccordion = function(id) {
     const card = document.getElementById(`card-${id}`);
     const body = document.getElementById(`body-${id}`);
@@ -113,8 +140,32 @@ window.toggleAccordion = function(id) {
     }
 };
 
+// ================= ТАЙМЕР =================
+function startTimer() {
+    clearInterval(timerInterval);
+    secondsElapsed = 0;
+    updateTimerUI();
+    document.getElementById('timer-badge').classList.remove('hidden');
+    
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimerUI();
+    }, 1000);
+}
+
+function updateTimerUI() {
+    const m = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+    const s = (secondsElapsed % 60).toString().padStart(2, '0');
+    const display = `${m}:${s}`;
+    document.getElementById('timer-display').textContent = display;
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
 // ================= УПРАВЛЕНИЕ ТЕСТАМИ =================
-function shuffle(array) {
+function shuffleArray(array) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -128,15 +179,20 @@ window.startTest = function(mode, type) {
     currentIndex = 0;
     currentMode = mode;
     
+    // Сбрасываем подсказки
+    examData.forEach(item => item.hintShown = false);
+    
     let pool = [...examData];
     
     if (type === '50-random') {
-        testQuestions = shuffle(pool).slice(0, 50);
+        testQuestions = shuffleArray(pool).slice(0, 50);
     } else if (type === 'all-random') {
-        testQuestions = shuffle(pool);
+        testQuestions = shuffleArray(pool);
     } else {
-        testQuestions = pool; // all-ordered
+        testQuestions = pool; 
     }
+
+    startTimer();
 
     if (mode === 'single') {
         switchView('view-test-single');
@@ -152,16 +208,13 @@ function renderSingleQuestion() {
     const container = document.getElementById('ts-question-container');
     const item = testQuestions[currentIndex];
     
-    // Обновляем прогресс
     document.getElementById('ts-current').textContent = currentIndex + 1;
     document.getElementById('ts-total').textContent = testQuestions.length;
     const progressPercent = ((currentIndex) / testQuestions.length) * 100;
     document.getElementById('ts-progress').style.width = `${progressPercent}%`;
     
-    // Рендерим вопрос
     container.innerHTML = getQuestionHtml(item, 'test');
     
-    // Кнопки навигации
     document.getElementById('ts-prev').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
     
     if (currentIndex === testQuestions.length - 1) {
@@ -187,6 +240,13 @@ window.tsPrev = function() {
     }
 };
 
+window.showHint = function() {
+    if (currentMode !== 'single') return;
+    const item = testQuestions[currentIndex];
+    item.hintShown = true;
+    renderSingleQuestion();
+};
+
 // ================= ТЕСТ СПИСКОМ =================
 function renderListTest() {
     const container = document.getElementById('tl-container');
@@ -197,6 +257,9 @@ function renderListTest() {
 window.toggleChoice = function(qId, choiceIndex) {
     const item = testQuestions.find(q => q.id === qId);
     if (!item) return;
+    
+    // Если уже показана подсказка, не даем менять ответ (чтобы не читерить)
+    if (item.hintShown && currentMode === 'single') return;
     
     const choiceStr = item.choices[choiceIndex];
     const isMulti = item.correctAnswers.length > 1;
@@ -210,17 +273,22 @@ window.toggleChoice = function(qId, choiceIndex) {
             userAnswers[qId].push(choiceStr);
         }
     } else {
-        userAnswers[qId] = [choiceStr]; // Single selection overrides
+        userAnswers[qId] = [choiceStr];
     }
     
-    // Перерендер конкретного вопроса
-    const newHtml = getQuestionHtml(item, 'test');
-    document.getElementById(`card-${qId}`).outerHTML = newHtml;
+    if (currentMode === 'single') {
+        renderSingleQuestion();
+    } else {
+        const newHtml = getQuestionHtml(item, 'test');
+        document.getElementById(`card-${qId}`).outerHTML = newHtml;
+    }
 };
 
 // ================= ЗАВЕРШЕНИЕ И РЕЗУЛЬТАТЫ =================
 window.finishTest = function() {
-    // Подсчет результатов
+    stopTimer();
+    document.getElementById('timer-badge').classList.add('hidden');
+    
     let correctCount = 0;
     
     testQuestions.forEach(q => {
@@ -239,6 +307,11 @@ window.finishTest = function() {
     document.getElementById('res-total').textContent = total;
     document.getElementById('res-percent').textContent = `${percent}% правильных ответов`;
     
+    // Форматируем итоговое время
+    const m = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+    const s = (secondsElapsed % 60).toString().padStart(2, '0');
+    document.querySelector('#res-time span').textContent = `${m}:${s}`;
+    
     document.getElementById('errors-container').classList.add('hidden');
     switchView('view-results');
 };
@@ -248,12 +321,10 @@ window.showErrors = function() {
     container.innerHTML = testQuestions.map(item => getQuestionHtml(item, 'result')).join('');
     document.getElementById('errors-container').classList.remove('hidden');
     
-    // Плавный скролл к ошибкам
     document.getElementById('errors-container').scrollIntoView({ behavior: 'smooth' });
 };
 
 // ================= ГЕНЕРАЦИЯ HTML ВОПРОСА =================
-// mode: 'learn' | 'test' | 'result'
 function getQuestionHtml(item, mode) {
     const isMulti = item.correctAnswers.length > 1;
     const uAns = userAnswers[item.id] || [];
@@ -272,9 +343,23 @@ function getQuestionHtml(item, mode) {
         else if (mode === 'test') {
             className += ' selectable';
             const isSelected = uAns.includes(choice);
+            const isCorrect = item.correctAnswers.includes(choice);
+            
             if (isSelected) {
                 className += ' selected';
                 iconClass = isMulti ? 'ri-checkbox-fill' : 'ri-radio-button-fill';
+            }
+            
+            // Если включена подсказка в режиме test-single
+            if (item.hintShown) {
+                if (isCorrect) {
+                    className += ' correct';
+                    iconClass = 'ri-checkbox-circle-fill';
+                } else if (isSelected && !isCorrect) {
+                    className += ' incorrect';
+                    iconClass = 'ri-close-circle-fill';
+                }
+                className = className.replace('selectable', ''); // убираем hover-эффекты
             }
         }
         else if (mode === 'result') {
@@ -295,7 +380,7 @@ function getQuestionHtml(item, mode) {
             }
         }
 
-        const onClick = mode === 'test' ? `onclick="toggleChoice('${item.id}', ${idx})"` : '';
+        const onClick = (mode === 'test' && !item.hintShown) ? `onclick="toggleChoice('${item.id}', ${idx})"` : '';
         
         choicesHtml += `
             <div class="${className}" ${onClick}>
@@ -323,7 +408,6 @@ function getQuestionHtml(item, mode) {
             </div>
         `;
     } else {
-        // Для тестов и результатов (карточка всегда открыта)
         return `
             <div class="card open-card" id="card-${item.id}">
                 <div class="card-header">
