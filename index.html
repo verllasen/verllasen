@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Иконки Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <div class="container">
+            <div class="header-titles">
+                <div class="title-row">
+                    <div class="icon-box">
+                        <i class="ri-book-open-line"></i>
+                    </div>
+                    <h1>Экзамен теория вероятности</h1>
+                </div>
+                <p class="subtitle">created by verllasen</p>
+            </div>
+            
+            <div class="search-box">
+                <i class="ri-search-line search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Поиск по вопросам и ответам...">
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <!-- Состояние загрузки -->
+        <div id="loader" class="state-container">
+            <i class="ri-loader-4-line spin"></i>
+            <p>Загрузка вопросов...</p>
+        </div>
+
+        <!-- Ошибка -->
+        <div id="error" class="error-container hidden"></div>
+
+        <!-- Пустое состояние (ничего не найдено) -->
+        <div id="emptyState" class="state-container hidden">
+            <i class="ri-search-2-line empty-icon"></i>
+            <p class="empty-title">Ничего не найдено</p>
+            <p class="empty-subtitle">Попробуйте изменить поисковый запрос</p>
+        </div>
+
+        <!-- Список вопросов -->
+        <div id="qaList" class="qa-list"></div>
+    </main>
+
+    <!-- Скрипты -->
+    <script src="script.js"></script>
+</body>
+</html>

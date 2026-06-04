@@ -1,0 +1,341 @@
+:root {
+    /* Основные цвета */
+    --primary: #4f46e5;
+    --primary-light: #e0e7ff;
+    --primary-dark: #4338ca;
+    
+    /* Фоны */
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    
+    /* Тексты */
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    
+    /* Бордеры и тени */
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    
+    /* Состояния */
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --success-text: #065f46;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* Header */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 24px 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.icon-box {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+@media (min-width: 640px) {
+    h1 { font-size: 30px; }
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Search */
+.search-box {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 20px;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+input[type="text"]::placeholder {
+    color: #94a3b8;
+}
+
+input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+input[type="text"]:focus + .search-icon {
+    color: var(--primary);
+}
+
+/* Main Area */
+main {
+    padding: 32px 0 64px 0;
+}
+
+/* States (Loader, Empty, Error) */
+.state-container {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-muted);
+}
+
+.spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    font-size: 40px;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.empty-icon {
+    font-size: 48px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+.empty-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.error-container {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 500;
+    margin: 40px 0;
+}
+
+/* QA List & Cards */
+.qa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.card.expanded {
+    border-color: var(--primary-light);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1), 0 2px 4px -2px rgba(79, 70, 229, 0.1);
+}
+
+/* Header button of card */
+.card-header {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.card-header:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.4;
+    transition: color 0.2s;
+}
+
+@media (min-width: 640px) {
+    .card-title { font-size: 18px; }
+}
+
+.card.expanded .card-title {
+    color: var(--primary-dark);
+}
+
+.chevron {
+    font-size: 24px;
+    color: #94a3b8;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.card.expanded .chevron {
+    transform: rotate(180deg);
+    color: var(--primary);
+    background-color: var(--primary-light);
+}
+
+/* Card Body */
+.card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.card-content {
+    padding: 0 20px 20px;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin-bottom: 16px;
+}
+
+.choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+    .choice { font-size: 16px; }
+}
+
+.choice i {
+    font-size: 20px;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.choice.correct {
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--success-text);
+    font-weight: 500;
+}
+
+.choice.correct i {
+    color: var(--success);
+}
+
+.choice.incorrect {
+    background-color: var(--bg-main);
+    color: var(--text-muted);
+}
+
+.choice.incorrect i {
+    color: #cbd5e1;
+}
+
+.hidden {
+    display: none !important;
+}
