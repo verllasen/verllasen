@@ -24,7 +24,32 @@ function init() {
         document.querySelector('#theme-toggle i').className = 'ri-sun-line';
     }
 
-    fetch('теория-вероятностей.json')
+    // Получаем предмет из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const subject = urlParams.get('subject') || 'math'; // по умолчанию теория вероятности
+
+    let dataFile = '';
+    let title = '';
+
+    if (subject === 'mdk' || subject === 'mdk0602') {
+        dataFile = '0602МДК.json';
+        title = 'Кибербезопасность (06.02 МДК)';
+    } else if (subject === 'mdk0103') {
+        dataFile = '0103МДК.json';
+        title = 'Разработка мобильных приложений (01.03 МДК)';
+    } else {
+        dataFile = 'теория-вероятностей.json';
+        title = 'Экзамен теория вероятности';
+    }
+
+    // Обновляем заголовок
+    document.title = title;
+    const headerTitleEl = document.getElementById('header-title');
+    if (headerTitleEl) {
+        headerTitleEl.textContent = title;
+    }
+
+    fetch(dataFile)
         .then(response => {
             if (!response.ok) throw new Error('Не удалось загрузить файл данных.');
             return response.json();
@@ -120,14 +145,16 @@ function renderLearnList(items) {
 }
 
 window.toggleAccordion = function(id) {
-    const card = document.getElementById(`card-${id}`);
-    const body = document.getElementById(`body-${id}`);
+    const card = document.getElementById(`learn-card-${id}`);
+    const body = document.getElementById(`learn-body-${id}`);
     const isExpanded = card.classList.contains('expanded');
     
-    document.querySelectorAll('.card.expanded').forEach(c => {
-        if (c.id !== `card-${id}`) {
+    document.querySelectorAll('#qaList .card.expanded').forEach(c => {
+        if (c.id !== `learn-card-${id}`) {
             c.classList.remove('expanded');
-            document.getElementById(`body-${c.id.replace('card-','')}`).style.maxHeight = null;
+            const otherId = c.id.replace('learn-card-', '');
+            const otherBody = document.getElementById(`learn-body-${otherId}`);
+            if (otherBody) otherBody.style.maxHeight = null;
         }
     });
 
@@ -280,7 +307,10 @@ window.toggleChoice = function(qId, choiceIndex) {
         renderSingleQuestion();
     } else {
         const newHtml = getQuestionHtml(item, 'test');
-        document.getElementById(`card-${qId}`).outerHTML = newHtml;
+        const cardElement = document.getElementById(`test-card-${qId}`);
+        if (cardElement) {
+            cardElement.outerHTML = newHtml;
+        }
     }
 };
 
@@ -392,12 +422,12 @@ function getQuestionHtml(item, mode) {
 
     if (mode === 'learn') {
         return `
-            <div class="card" id="card-${item.id}">
+            <div class="card" id="learn-card-${item.id}">
                 <button class="card-header" onclick="toggleAccordion('${item.id}')">
                     <span class="card-title">${item.question}</span>
                     <i class="ri-arrow-down-s-line chevron"></i>
                 </button>
-                <div class="card-body" id="body-${item.id}">
+                <div class="card-body" id="learn-body-${item.id}">
                     <div class="card-content">
                         <div class="divider"></div>
                         <div class="choices-container">
@@ -408,8 +438,9 @@ function getQuestionHtml(item, mode) {
             </div>
         `;
     } else {
+        const idPrefix = mode === 'result' ? 'result-card-' : 'test-card-';
         return `
-            <div class="card open-card" id="card-${item.id}">
+            <div class="card open-card" id="${idPrefix}${item.id}">
                 <div class="card-header">
                     <span class="card-title">${item.question}</span>
                     ${isMulti ? '<span class="badge">Несколько вариантов ответа</span>' : ''}

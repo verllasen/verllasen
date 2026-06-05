@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Иконки Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <div class="container">
+            <div class="header-top">
+                <div class="header-titles">
+                    <div class="title-row">
+                        <div class="icon-box">
+                            <a href="index.html" title="На главную" style="color: inherit; text-decoration: none;">
+                                <i class="ri-home-4-line"></i>
+                            </a>
+                        </div>
+                        <h1 id="header-title">Экзамен</h1>
+                    </div>
+                    <p class="subtitle">created by verllasen</p>
+                </div>
+                
+                <div class="header-actions">
+                    <!-- Таймер (скрыт по умолчанию) -->
+                    <div class="timer-badge hidden" id="timer-badge">
+                        <i class="ri-timer-line"></i> <span class="timer-display" id="timer-display">00:00</span>
+                    </div>
+                    <!-- Переключатель темы -->
+                    <button id="theme-toggle" class="icon-btn" onclick="toggleTheme()" title="Сменить тему">
+                        <i class="ri-moon-line"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Навигация (Режимы) -->
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-learn" onclick="switchTab('learn')">
+                    <i class="ri-book-read-line"></i> Шпаргалка
+                </button>
+                <button class="tab-btn" id="tab-test-single" onclick="switchTab('test-single')">
+                    <i class="ri-focus-2-line"></i> Тест-кабинет
+                </button>
+                <button class="tab-btn" id="tab-test-list" onclick="switchTab('test-list')">
+                    <i class="ri-file-list-3-line"></i> Большой тест
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <!-- Состояние загрузки -->
+        <div id="loader" class="state-container">
+            <i class="ri-loader-4-line spin"></i>
+            <p>Загрузка вопросов...</p>
+        </div>
+
+        <!-- Ошибка -->
+        <div id="error" class="error-container hidden"></div>
+
+        <!-- РЕЖИМ 1: ШПАРГАЛКА (Обучение) -->
+        <div id="view-learn" class="view hidden">
+            <div class="search-box mb-6">
+                <i class="ri-search-line search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Поиск по вопросам и ответам...">
+            </div>
+            
+            <!-- Пустое состояние -->
+            <div id="emptyState" class="state-container hidden">
+                <i class="ri-search-2-line empty-icon"></i>
+                <p class="empty-title">Ничего не найдено</p>
+                <p class="empty-subtitle">Попробуйте изменить поисковый запрос</p>
+            </div>
+
+            <!-- Список вопросов -->
+            <div id="qaList" class="qa-list"></div>
+        </div>
+
+        <!-- РЕЖИМ 2: ВЫБОР НАСТРОЕК ТЕСТА ПО ОДНОМУ -->
+        <div id="view-test-setup" class="view hidden">
+            <h2 class="section-title mb-6 text-center">Выберите режим тренировки</h2>
+            <div class="setup-grid">
+                <button class="setup-card" onclick="startTest('single', '50-random')">
+                    <div class="setup-icon"><i class="ri-dice-line"></i></div>
+                    <h3>50 случайных</h3>
+                    <p>Случайная выборка 50 вопросов, по одному на экране</p>
+                </button>
+                <button class="setup-card" onclick="startTest('single', 'all-ordered')">
+                    <div class="setup-icon"><i class="ri-list-ordered"></i></div>
+                    <h3>Все по порядку</h3>
+                    <p>Все вопросы в исходном порядке, по одному на экране</p>
+                </button>
+                <button class="setup-card" onclick="startTest('single', 'all-random')">
+                    <div class="setup-icon"><i class="ri-shuffle-line"></i></div>
+                    <h3>Все вразноброс</h3>
+                    <p>Полный тест в случайном порядке, по одному на экране</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 3: ТЕСТ ПО ОДНОМУ ВОПРОСУ -->
+        <div id="view-test-single" class="view hidden">
+            <div class="test-header">
+                <div class="progress-info">
+                    <div class="progress-text">Вопрос <span id="ts-current">1</span> из <span id="ts-total">50</span></div>
+                    <button class="btn-text" onclick="showHint()"><i class="ri-lightbulb-flash-line"></i> Подсказка</button>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="ts-progress"></div></div>
+            </div>
+            
+            <div id="ts-question-container" class="qa-list mb-6">
+                <!-- Сюда рендерится один вопрос -->
+            </div>
+            
+            <div class="test-footer">
+                <button class="btn btn-secondary" id="ts-prev" onclick="tsPrev()"><i class="ri-arrow-left-line"></i> Назад</button>
+                <button class="btn btn-primary" id="ts-next" onclick="tsNext()">Вперед <i class="ri-arrow-right-line"></i></button>
+                <button class="btn btn-success hidden" id="ts-finish" onclick="finishTest()"><i class="ri-check-double-line"></i> Завершить тест</button>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 4: БОЛЬШОЙ ТЕСТ (Все вопросы списком) -->
+        <div id="view-test-list" class="view hidden">
+            <div class="test-header mb-6">
+                <h2 class="section-title">Большой тест</h2>
+                <p class="subtitle mt-2">Все вопросы на одной странице. Ответьте на них и нажмите "Завершить тест" в самом низу.</p>
+            </div>
+            
+            <div id="tl-container" class="qa-list mb-6">
+                <!-- Сюда рендерятся все вопросы -->
+            </div>
+            
+            <button class="btn btn-success w-full" onclick="finishTest()"><i class="ri-check-double-line"></i> Завершить тест</button>
+        </div>
+
+        <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
+        <div id="view-results" class="view hidden">
+            <div class="results-card">
+                <div class="result-icon-wrapper">
+                    <i class="ri-award-fill result-icon"></i>
+                </div>
+                <h2 class="result-title">Тест завершен!</h2>
+                <div class="score-display">
+                    <span id="res-score">0</span> <span class="score-divider">/</span> <span id="res-total" class="score-total">0</span>
+                </div>
+                <p class="result-percent" id="res-percent">0% правильных ответов</p>
+                <p class="result-time mb-6" id="res-time"><i class="ri-timer-line"></i> Время: <span>00:00</span></p>
+                
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="showErrors()"><i class="ri-search-eye-line"></i> Разбор ответов</button>
+                    <button class="btn btn-secondary" onclick="switchTab('test-single')"><i class="ri-refresh-line"></i> Новый тест</button>
+                </div>
+            </div>
+            
+            <div id="errors-container" class="qa-list hidden mt-8">
+                <h3 class="section-title mb-6">Ваши ответы</h3>
+                <div id="errors-list" class="qa-list">
+                    <!-- Сюда рендерятся ошибки/ответы -->
+                </div>
+                <button class="btn btn-secondary w-full mt-6" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="ri-arrow-up-line"></i> Наверх</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Скрипты -->
+    <script src="script.js"></script>
+</body>
+</html>

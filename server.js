@@ -11,7 +11,7 @@ const MIME_TYPES = {
 };
 
 http.createServer((req, res) => {
-    let filePath = '.' + req.url;
+    let filePath = '.' + decodeURIComponent(req.url);
     if (filePath === './') filePath = './index.html';
     
     // Убираем параметры запроса из пути

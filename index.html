@@ -3,173 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Экзамен</title>
+    <title>Подготовка к экзаменам</title>
     <link rel="stylesheet" href="style.css">
     <!-- Иконки Remix Icon -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .home-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+        @media (min-width: 640px) {
+            .home-title { font-size: 42px; }
+        }
+        .home-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            max-width: 500px;
+        }
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        @media (min-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .subject-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px 24px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .subject-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-md);
+        }
+        .subject-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px auto;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            transition: transform 0.3s;
+        }
+        .subject-card:hover .subject-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .subject-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        .subject-card .start-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+        .subject-card:hover .start-btn {
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
+        }
+        .subject-card .start-btn i {
+            transition: transform 0.3s ease;
+        }
+        .subject-card:hover .start-btn i {
+            transform: translateX(4px);
+        }
+
+        .theme-toggle-home {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+        }
+    </style>
 </head>
 <body>
-    <!-- Шапка -->
-    <header class="header">
-        <div class="container">
-            <div class="header-top">
-                <div class="header-titles">
-                    <div class="title-row">
-                        <div class="icon-box">
-                            <i class="ri-book-open-line"></i>
-                        </div>
-                        <h1>Экзамен теория вероятности</h1>
-                    </div>
-                    <p class="subtitle">created by verllasen</p>
-                </div>
-                
-                <div class="header-actions">
-                    <!-- Таймер (скрыт по умолчанию) -->
-                    <div class="timer-badge hidden" id="timer-badge">
-                        <i class="ri-timer-line"></i> <span class="timer-display" id="timer-display">00:00</span>
-                    </div>
-                    <!-- Переключатель темы -->
-                    <button id="theme-toggle" class="icon-btn" onclick="toggleTheme()" title="Сменить тему">
-                        <i class="ri-moon-line"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Навигация (Режимы) -->
-            <div class="tabs">
-                <button class="tab-btn active" id="tab-learn" onclick="switchTab('learn')">
-                    <i class="ri-book-read-line"></i> Шпаргалка
-                </button>
-                <button class="tab-btn" id="tab-test-single" onclick="switchTab('test-single')">
-                    <i class="ri-focus-2-line"></i> Тест-кабинет
-                </button>
-                <button class="tab-btn" id="tab-test-list" onclick="switchTab('test-list')">
-                    <i class="ri-file-list-3-line"></i> Большой тест
-                </button>
-            </div>
-        </div>
-    </header>
+    <div class="theme-toggle-home">
+        <button id="theme-toggle" class="icon-btn" onclick="toggleTheme()" title="Сменить тему">
+            <i class="ri-moon-line"></i>
+        </button>
+    </div>
 
-    <!-- Основной контент -->
     <main class="container">
-        <!-- Состояние загрузки -->
-        <div id="loader" class="state-container">
-            <i class="ri-loader-4-line spin"></i>
-            <p>Загрузка вопросов...</p>
-        </div>
-
-        <!-- Ошибка -->
-        <div id="error" class="error-container hidden"></div>
-
-        <!-- РЕЖИМ 1: ШПАРГАЛКА (Обучение) -->
-        <div id="view-learn" class="view hidden">
-            <div class="search-box mb-6">
-                <i class="ri-search-line search-icon"></i>
-                <input type="text" id="searchInput" placeholder="Поиск по вопросам и ответам...">
+        <div class="home-container">
+            <div class="icon-box" style="margin-bottom: 24px; width: 64px; height: 64px; font-size: 32px; border-radius: 16px;">
+                <i class="ri-graduation-cap-line"></i>
             </div>
-            
-            <!-- Пустое состояние -->
-            <div id="emptyState" class="state-container hidden">
-                <i class="ri-search-2-line empty-icon"></i>
-                <p class="empty-title">Ничего не найдено</p>
-                <p class="empty-subtitle">Попробуйте изменить поисковый запрос</p>
-            </div>
+            <h1 class="home-title">Подготовка к экзаменам</h1>
+            <p class="home-subtitle">Выберите предмет для начала тестирования или изучения материалов.</p>
 
-            <!-- Список вопросов -->
-            <div id="qaList" class="qa-list"></div>
-        </div>
+            <div class="subjects-grid">
+                <!-- Карточка 1 -->
+                <a href="app.html?subject=math" class="subject-card">
+                    <div class="subject-icon">
+                        <i class="ri-functions"></i>
+                    </div>
+                    <h2>Теория вероятности</h2>
+                    <div class="start-btn">
+                        <span>Начать</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>
 
-        <!-- РЕЖИМ 2: ВЫБОР НАСТРОЕК ТЕСТА ПО ОДНОМУ -->
-        <div id="view-test-setup" class="view hidden">
-            <h2 class="section-title mb-6 text-center">Выберите режим тренировки</h2>
-            <div class="setup-grid">
-                <button class="setup-card" onclick="startTest('single', '50-random')">
-                    <div class="setup-icon"><i class="ri-dice-line"></i></div>
-                    <h3>50 случайных</h3>
-                    <p>Случайная выборка 50 вопросов, по одному на экране</p>
-                </button>
-                <button class="setup-card" onclick="startTest('single', 'all-ordered')">
-                    <div class="setup-icon"><i class="ri-list-ordered"></i></div>
-                    <h3>Все по порядку</h3>
-                    <p>Все вопросы в исходном порядке, по одному на экране</p>
-                </button>
-                <button class="setup-card" onclick="startTest('single', 'all-random')">
-                    <div class="setup-icon"><i class="ri-shuffle-line"></i></div>
-                    <h3>Все вразноброс</h3>
-                    <p>Полный тест в случайном порядке, по одному на экране</p>
-                </button>
+                <!-- Карточка 2 -->
+                <a href="app.html?subject=mdk0602" class="subject-card">
+                    <div class="subject-icon">
+                        <i class="ri-shield-keyhole-line"></i>
+                    </div>
+                    <h2>06.02 МДК</h2>
+                    <div class="start-btn">
+                        <span>Начать</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>
+
+                <!-- Карточка 3 -->
+                <a href="app.html?subject=mdk0103" class="subject-card">
+                    <div class="subject-icon">
+                        <i class="ri-smartphone-line"></i>
+                    </div>
+                    <h2>01.03 МДК</h2>
+                    <div class="start-btn">
+                        <span>Начать</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>
             </div>
         </div>
-
-        <!-- РЕЖИМ 3: ТЕСТ ПО ОДНОМУ ВОПРОСУ -->
-        <div id="view-test-single" class="view hidden">
-            <div class="test-header">
-                <div class="progress-info">
-                    <div class="progress-text">Вопрос <span id="ts-current">1</span> из <span id="ts-total">50</span></div>
-                    <button class="btn-text" onclick="showHint()"><i class="ri-lightbulb-flash-line"></i> Подсказка</button>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" id="ts-progress"></div></div>
-            </div>
-            
-            <div id="ts-question-container" class="qa-list mb-6">
-                <!-- Сюда рендерится один вопрос -->
-            </div>
-            
-            <div class="test-footer">
-                <button class="btn btn-secondary" id="ts-prev" onclick="tsPrev()"><i class="ri-arrow-left-line"></i> Назад</button>
-                <button class="btn btn-primary" id="ts-next" onclick="tsNext()">Вперед <i class="ri-arrow-right-line"></i></button>
-                <button class="btn btn-success hidden" id="ts-finish" onclick="finishTest()"><i class="ri-check-double-line"></i> Завершить тест</button>
-            </div>
-        </div>
-
-        <!-- РЕЖИМ 4: БОЛЬШОЙ ТЕСТ (Все вопросы списком) -->
-        <div id="view-test-list" class="view hidden">
-            <div class="test-header mb-6">
-                <h2 class="section-title">Большой тест</h2>
-                <p class="subtitle mt-2">Все вопросы на одной странице. Ответьте на них и нажмите "Завершить тест" в самом низу.</p>
-            </div>
-            
-            <div id="tl-container" class="qa-list mb-6">
-                <!-- Сюда рендерятся все вопросы -->
-            </div>
-            
-            <button class="btn btn-success w-full" onclick="finishTest()"><i class="ri-check-double-line"></i> Завершить тест</button>
-        </div>
-
-        <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
-        <div id="view-results" class="view hidden">
-            <div class="results-card">
-                <div class="result-icon-wrapper">
-                    <i class="ri-award-fill result-icon"></i>
-                </div>
-                <h2 class="result-title">Тест завершен!</h2>
-                <div class="score-display">
-                    <span id="res-score">0</span> <span class="score-divider">/</span> <span id="res-total" class="score-total">0</span>
-                </div>
-                <p class="result-percent" id="res-percent">0% правильных ответов</p>
-                <p class="result-time mb-6" id="res-time"><i class="ri-timer-line"></i> Время: <span>00:00</span></p>
-                
-                <div class="result-actions">
-                    <button class="btn btn-primary" onclick="showErrors()"><i class="ri-search-eye-line"></i> Разбор ответов</button>
-                    <button class="btn btn-secondary" onclick="switchTab('test-single')"><i class="ri-refresh-line"></i> Новый тест</button>
-                </div>
-            </div>
-            
-            <div id="errors-container" class="qa-list hidden mt-8">
-                <h3 class="section-title mb-6">Ваши ответы</h3>
-                <div id="errors-list" class="qa-list">
-                    <!-- Сюда рендерятся ошибки/ответы -->
-                </div>
-                <button class="btn btn-secondary w-full mt-6" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="ri-arrow-up-line"></i> Наверх</button>
-            </div>
-        </div>
-
     </main>
 
-    <!-- Скрипты -->
-    <script src="script.js"></script>
+    <script>
+        // Проверяем тему в localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.querySelector('#theme-toggle i').className = 'ri-sun-line';
+        }
+
+        window.toggleTheme = function() {
+            const root = document.documentElement;
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            
+            if (isDark) {
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                document.querySelector('#theme-toggle i').className = 'ri-moon-line';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                document.querySelector('#theme-toggle i').className = 'ri-sun-line';
+            }
+        };
+    </script>
 </body>
 </html>
