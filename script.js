@@ -31,12 +31,12 @@ function init() {
     let dataFile = '';
     let title = '';
 
-    if (subject === 'mdk' || subject === 'mdk0602') {
-        dataFile = '0602МДК.json';
-        title = 'Кибербезопасность (06.02 МДК)';
-    } else if (subject === 'mdk0103') {
+    if (subject === 'mdk0103') {
         dataFile = '0103МДК.json';
         title = 'Разработка мобильных приложений (01.03 МДК)';
+    } else if (subject === 'mdk0502') {
+        dataFile = 'МДК_0502.json';
+        title = 'Компьютерная графика и мультимедиа (05.02 МДК)';
     } else {
         dataFile = 'теория-вероятностей.json';
         title = 'Экзамен теория вероятности';
