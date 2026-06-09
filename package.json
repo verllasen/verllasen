@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cheerio": "^1.2.0",
     "mammoth": "^1.12.0"
   }
 }

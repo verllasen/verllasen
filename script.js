@@ -37,6 +37,9 @@ function init() {
     } else if (subject === 'mdk0502') {
         dataFile = 'МДК_0502.json';
         title = 'Компьютерная графика и мультимедиа (05.02 МДК)';
+    } else if (subject === 'mdk0301') {
+        dataFile = '03.01МДК.json';
+        title = 'Экзамен 03.01 МДК';
     } else {
         dataFile = 'теория-вероятностей.json';
         title = 'Экзамен теория вероятности';
