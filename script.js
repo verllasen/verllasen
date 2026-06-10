@@ -40,6 +40,9 @@ function init() {
     } else if (subject === 'mdk0301') {
         dataFile = '03.01МДК.json';
         title = 'Экзамен 03.01 МДК';
+    } else if (subject === 'mdk0501') {
+        dataFile = '05.01МДК.json';
+        title = 'Экзамен 05.01 МДК';
     } else {
         dataFile = 'теория-вероятностей.json';
         title = 'Экзамен теория вероятности';
